@@ -50,31 +50,51 @@ function renderCandidates() {
   $('#candidateBody').html(rendered);
 }
 
+async function callStatic(func, args) {
+    const contract = await client.getContractInstance(contractSource, {contractAddress});
+    const calledGet = await contract.call(func, args, {callStatic: true}).catch(e => console.error(e));
+    const decodedGet = await calledGet.decode().catch(e => console.error(e));
+    return decodedGet;
+  }
+
 window.addEventListener('load', async () => {
 
     client = await Ae.Aepp();
 
-    const contract = await client.getContractInstance(contractSource, {contractAddress});
-    const calledGet = await contract.call('getCandidatesLength', [], {callStatic: true}).catch(e => console.error(e));
-    console.log('calledGet', calledGet);
-  
-    const decodedGet = await calledGet.decode().catch(e => console.error(e));
-    console.log('decodedGet', decodedGet);
+    candidatesLength = await callStatic('getCandidatesLength', []);
 
-  renderCandidates();
+    for (let i = 1; i <= candidatesLength; i++) {
+        const candidate = await callStatic('getCandidate', [i]);
+
+        candidateArray.push({
+            creatorName: candidate.name,
+            candidateUrl: candidate.url,
+            index: i,
+            votes: candidate.voteCounter,
+        })
+    }
+        
+    
+renderCandidates();
 });
 
 jQuery('#candidateBody').on("click", ".vote-btn", async function(event){
-    const dataIndex = event.target.id;
     const foundIndex = candidateArray.findIndex(candidate => candidate.index == dataIndex);
-    const value = $(".amount")[foundIndex].value;
+    
+    let value = $(".amount")[foundIndex].value;
+        dataIndex = event.target.id;
+
+    await contractCall('voteCandidate', [index], value);
+
     candidateArray[foundIndex].votes += parseInt(value, 10);
     renderCandidates();
 });
 
 $('.reg-btn').click(async function(){
-    var name = ($('#icon_prefix').val()),
-        url = ($('.reg_url').val());
+    const name = ($('#icon_prefix').val()),
+          url = ($('.reg_url').val());
+
+    await contractCall('registerCandidate', [url, name], 0);
 
     candidateArray.push({
         creatorName: name,
