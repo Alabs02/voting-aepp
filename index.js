@@ -36,7 +36,7 @@ const contractSource = `
     let updatedCandidates = state.candidates{ [index].voteCounter = updatedVoteCounter }
     put(state { candidates = updatedCandidates })
 `;
-const contractAddress =  "ct_25odzQJqdX5BcmqxwpBkg8tzGBqkecxUyP3sVWTJ3vRcfvrok1";
+const contractAddress =  "ct_AxAsPd43KBBjYibZ3YwE5CMoRm44koZabM1PMBUWt9chn7b3k";
 var client = null;
 var candidateArray = [];
 var candidatesLength = 0;
@@ -44,10 +44,10 @@ var candidatesLength = 0;
 
 function renderCandidates() {
     candidateArray = candidateArray.sort(function(a,b){return b.votes-a.votes})
-  var template = $('#template').html();
-  Mustache.parse(template);
-  var rendered = Mustache.render(template, {candidateArray});
-  $('#candidateBody').html(rendered);
+    var template = $('#template').html();
+    Mustache.parse(template);
+    var rendered = Mustache.render(template, {candidateArray});
+    $('#candidateBody').html(rendered);
 }
 
 async function callStatic(func, args) {
@@ -60,7 +60,6 @@ async function callStatic(func, args) {
 async function contractCall(func, args, value) {
     const contract = await client.getContractInstance(contractSource, {contractAddress});
     const calledSet = await contract.call(func, args, {amount: value}).catch(e => console.error(e));
-
 	return calledSet;
 }
 
@@ -70,17 +69,16 @@ window.addEventListener('load', async () => {
 
     candidatesLength = await callStatic('getCandidatesLength', []);
 
-    for (let i = 1; i <= candidatesLength; i++) {
-        const candidate = await callStatic('getCandidate', [i]);
+for (let i = 1; i <= candidatesLength; i++) {
+    const candidate = await callStatic('getCandidate', [i]);
 
-        candidateArray.push({
-            creatorName: candidate.name,
-            candidateUrl: candidate.url,
-            index: i,
-            votes: candidate.voteCounter,
-        })
-    }
-        
+    candidateArray.push({
+        creatorName: candidate.name,
+        candidateUrl: candidate.url,
+        index: i,
+        votes: candidate.voteCounter,
+    })
+}       
     
 renderCandidates();
 });
@@ -108,9 +106,10 @@ $('.reg-btn').click(async function(){
         candidateUrl: url,
         index: candidateArray.length+1,
         votes: 0
-        })
-        renderCandidates();
-    });
+    })
+    renderCandidates();
+});
+
 
    
   
