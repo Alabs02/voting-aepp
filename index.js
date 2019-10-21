@@ -1,42 +1,42 @@
 const contractSource = `
-    contract Election = 
+contract Election = 
 
-    record candidate = 
-    { creatorAddress   : address, 
-        url              : string, 
-        name             : string, 
-        voteCounter      : int  }
+record candidate = 
+  { creatorAddress   : address, 
+    url              : string, 
+    name             : string, 
+    voteCounter      : int  }
 
-    record state = 
-    { candidates : map(int, candidate), 
-        candidatesLength : int  }
+record state = 
+  { candidates : map(int, candidate), 
+    candidatesLength : int  }
 
-    entrypoint init() = 
-    { candidates = {}, 
-        candidatesLength = 0 }
+entrypoint init() = 
+  { candidates = {}, 
+    candidatesLength = 0 }
 
-    entrypoint getCandidate(index : int ) : candidate = 
-    switch( Map.lookup(index, state.candidates ))
-        None    => abort("There is no candidate with this index registered.")
-        Some(x) => x
-    
-    stateful entrypoint registerCandidate( url' : string, name' : string ) =
-    let candidate = { creatorAddress = Call.caller, url = url', name = name', voteCounter = 0 }
-    let index = getCandidatesLength() + 1
-    put( state { candidates[index] = candidate, candidatesLength = index })
-    
-    
-    entrypoint getCandidatesLength() : int = 
-    state.candidatesLength
-    
-    stateful entrypoint voteCandidate( index : int ) = 
-    let candidate = getCandidate(index)
-    Chain.spend(candidate.creatorAddress, Call.value)
-    let updatedVoteCounter = candidate.voteCounter + Call.value
-    let updatedCandidates = state.candidates{ [index].voteCounter = updatedVoteCounter }
-    put(state { candidates = updatedCandidates })
+entrypoint getCandidate(index : int ) : candidate = 
+  switch( Map.lookup(index, state.candidates ))
+    None    => abort("There is no candidate with this index registered.")
+    Some(x) => x
+
+stateful entrypoint registerCandidate( url' : string, name' : string ) =
+  let candidate = { creatorAddress = Call.caller, url = url', name = name', voteCounter = 0 }
+  let index = getCandidatesLength() + 1
+  put( state { candidates[index] = candidate, candidatesLength = index })
+
+
+entrypoint getCandidatesLength() : int = 
+  state.candidatesLength
+
+stateful entrypoint voteCandidate( index : int ) = 
+  let candidate = getCandidate(index)
+  Chain.spend(candidate.creatorAddress, Call.value)
+  let updatedVoteCounter = candidate.voteCounter + Call.value
+  let updatedCandidates = state.candidates{ [index].voteCounter = updatedVoteCounter }
+  put(state { candidates = updatedCandidates })
 `;
-const contractAddress =  "ct_AxAsPd43KBBjYibZ3YwE5CMoRm44koZabM1PMBUWt9chn7b3k";
+const contractAddress =  "ct_yXFFU1Sekhfhin8GxHjsPVGmFCK71pfmtmAR2wD4pWR7tdmAA";
 var client = null;
 var candidateArray = [];
 var candidatesLength = 0;
@@ -108,7 +108,7 @@ $('.reg-btn').click(async function(){
         votes: 0
     })
     renderCandidates();
-});
+})
 
 
    
